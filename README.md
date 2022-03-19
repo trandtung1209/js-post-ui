@@ -1,6 +1,6 @@
-# Post UI Project :heart_eyes
+# Post UI Project :heart_eyes:
 
-View live demo: [https://paulnguyen-mn.github.io/posts-ui/](https://paulnguyen-mn.github.io/posts-ui/)
+View live demo: [https://js-post-ui-vanilla.vercel.app/](https://js-post-ui-vanilla.vercel.app/)
 This simple website has 3 pages:
 
 - Home page: `/`
@@ -87,7 +87,7 @@ Sample payload:
 ```js
 {
   title: 'Some cool title',
-  author: 'Po Nguyen',
+  author: 'VOZ',
   description: 'Awesome post',
   imageUrl: 'https://picsum.photos/id/580/1368/400',
 }
@@ -131,6 +131,7 @@ DELETE /posts/:postId
   - Include 3 slides
   - Each slide has title and description.
   - Auto move the next slide.
+- Search post by title
 - Fetch list of posts and render to UI.
 - Sort list of post to show the latest post first.
 - `ADVANCED`: Support pagination to be able to to fetch posts by page and limit the number of posts per page.
@@ -170,7 +171,3 @@ DELETE /posts/:postId
 - Get post detail.
 - Update corresponding DOM: `title`, `description`, `author`, `createdAt` and `imageUrl`.
 - Integrate with `Lightbox` to view image when click on image.
-
-Good luck everyone! :heart_eyes:
-
-> Created by Po with :heart:
