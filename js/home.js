@@ -1,57 +1,51 @@
 import postApi from './api/postApi'
-import { setTextContent, truncateText } from './utils'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
+import { initPagination, initSearch, renderPostList, renderPagination } from './utils'
 
-//to use fromNow function
-dayjs.extend(relativeTime)
+async function handleFilterChange(filterName, filterValue) {
+  try {
+    //update query params
+    const url = new URL(window.location)
+    url.searchParams.set(filterName, filterValue)
 
-function createPostElement(post) {
-  if (!post) return
-  // find template, clone, custom title,des,...
-  const postTemplate = document.getElementById('postTemplate')
-  if (!postTemplate) return
-  const liElement = postTemplate.content.firstElementChild.cloneNode(true)
-  if (!liElement) return
+    if (filterName === 'title_like') url.searchParams.set('_page', 1)
 
-  setTextContent(liElement, '[data-id="title"]', post.title)
-  setTextContent(liElement, '[data-id="description"]', truncateText(post.description, 200))
-  setTextContent(liElement, '[data-id="author"]', post.author)
-  setTextContent(liElement, '[data-id="timeSpan"]', ` - ${dayjs(post.updatedAt).fromNow()}`)
-  //calculate timeSpan
+    history.pushState({}, '', url)
 
-  const thumbnailElement = liElement.querySelector('[data-id="thumbnail"]')
-  if (thumbnailElement) {
-    thumbnailElement.src = post.imageUrl
-    thumbnailElement.addEventListener('error', () => {
-      thumbnailElement.src = 'https://via.placeholder.com/1368x400?text=thumbnail'
-    })
+    const { data, pagination } = await postApi.getAll(url.searchParams)
+    renderPostList(data)
+    renderPagination('pagination', pagination)
+  } catch (error) {
+    console.log('failed to fetch post list', error)
   }
-
-  //attack event
-
-  return liElement
 }
 
-function renderPostList(postList) {
-  if (!Array.isArray(postList) || postList.length === 0) return
-  const ulElement = document.getElementById('postList')
-  if (!ulElement) return
-
-  postList.forEach((post) => {
-    const liElement = createPostElement(post)
-    ulElement.appendChild(liElement)
-  })
-}
-
+// MAIN
 ;(async () => {
   try {
-    const queryParams = {
-      _page: 1,
-      _limit: 9,
-    }
+    const url = new URL(window.location)
+    //update searchParams
+    if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1)
+    if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6)
+
+    history.pushState({}, '', url)
+    const queryParams = url.searchParams
+
+    //attack click event for link
+    initPagination({
+      elementId: 'pagination',
+      defaultParams: queryParams,
+      onChange: (page) => handleFilterChange('_page', page),
+    })
+
+    initSearch({
+      elementId: 'searchInput',
+      defaultParams: queryParams,
+      onChange: (value) => handleFilterChange('title_like', value),
+    })
+
     const { data, pagination } = await postApi.getAll(queryParams)
     renderPostList(data)
+    renderPagination('pagination', pagination)
   } catch (error) {
     console.log('get all failed', error)
   }
